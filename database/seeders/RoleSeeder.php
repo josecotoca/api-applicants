@@ -15,20 +15,20 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
-        Permission::create(['guard_name' => 'api', 'name' => User::PERMISSION_CREATE_AGENT]);
-        Permission::create(['guard_name' => 'api', 'name' => User::PERMISSION_GET_AGENTS]);
-        Permission::create(['guard_name' => 'api', 'name' => User::PERMISSION_GET_AGENTS_BY_OWNER]);
+        // Permission::create(['guard_name' => 'api', 'name' => User::PERMISSION_CREATE_AGENT]);
+        // Permission::create(['guard_name' => 'api', 'name' => User::PERMISSION_GET_AGENTS]);
+        // Permission::create(['guard_name' => 'api', 'name' => User::PERMISSION_GET_AGENTS_BY_OWNER]);
 
-        $manager = Role::create(['name' => User::ROLE_MANAGER, 'guard_name' => 'api']);
-        $agent = Role::create(['name' => User::ROLE_AGENT, 'guard_name' => 'api']);
+        $manager = Role::create(['name' => User::ROLE_ADMIN, 'guard_name' => 'api']);
+        $agent = Role::create(['name' => User::ROLE_INDUSTRY, 'guard_name' => 'api']);
 
-        $manager->givePermissionTo([
-            User::PERMISSION_CREATE_AGENT,
-            User::PERMISSION_GET_AGENTS
-        ]);
+        // $manager->givePermissionTo([
+        //     User::PERMISSION_CREATE_AGENT,
+        //     User::PERMISSION_GET_AGENTS
+        // ]);
 
-        $agent->givePermissionTo([
-            User::PERMISSION_GET_AGENTS_BY_OWNER
-        ]);
+        // $agent->givePermissionTo([
+        //     User::PERMISSION_GET_AGENTS_BY_OWNER
+        // ]);
     }
 }

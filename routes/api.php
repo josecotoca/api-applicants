@@ -14,9 +14,14 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::group(['prefix' => 'v1'], function () use ($router) {
-    $router->post('login', [App\Http\Controllers\Api\AuthController::class, 'login'])->name('apiLogin');
-    $router->post('lead', [App\Http\Controllers\Api\ApplicantController::class, 'store'])->name('apiCreateApplicant')->middleware(['jwt.verify','permission:'.App\Models\User::PERMISSION_CREATE_AGENT]);
-    $router->get('lead/{id}', [App\Http\Controllers\Api\ApplicantController::class, 'show'])->name('apiGetApplicantById')->middleware(['jwt.verify','permission:'.App\Models\User::PERMISSION_GET_AGENTS]);
-    $router->get('leads', [App\Http\Controllers\Api\ApplicantController::class, 'showLeads'])->name('apiGetApplicantsAll')->middleware(['jwt.verify','permission:'.App\Models\User::PERMISSION_GET_AGENTS.'|'.App\Models\User::PERMISSION_GET_AGENTS_BY_OWNER]);
+Route::post('auth/login', [App\Http\Controllers\Api\AuthController::class, 'login'])->name('apiToken');
+Route::post('auth/refresh', [App\Http\Controllers\Api\AuthController::class, 'refresh'])->name('apiTokenRefresh')->middleware(['jwt.verify']);
+Route::post('auth/logout', [App\Http\Controllers\Api\AuthController::class, 'logout'])->name('apiTokenRefresh')->middleware(['jwt.verify']);
+Route::get('auth/me', [App\Http\Controllers\Api\AuthController::class, 'me'])->name('me')->middleware(['jwt.verify']);
+Route::get('auth/reconection', [App\Http\Controllers\Api\SettingsController::class, 'reconection'])->name('apiTokenReconection')->middleware(['jwt.verify']);
+
+$router->group(['prefix' => 'industry','middleware' => ["jwt.verify","role:".App\Models\User::ROLE_INDUSTRY]], function () use ($router) {
+    $router->get('settings', [App\Http\Controllers\Api\IndustryController::class, 'settings']);
+    $router->post('import-xls', [App\Http\Controllers\Api\IndustryController::class, 'importXls']);
+    $router->post('save-acopio', [App\Http\Controllers\Api\IndustryController::class, 'saveAcopio']);
 });

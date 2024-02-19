@@ -3,7 +3,7 @@
 namespace App\Repositories;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Contracts\BaseRepositoryInterface;
+use App\Repositories\Interface\BaseRepositoryInterface;
 
 class BaseRepository implements BaseRepositoryInterface
 {

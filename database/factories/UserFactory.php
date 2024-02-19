@@ -23,7 +23,7 @@ class UserFactory extends Factory
         return [
             'username' => fake()->username(),
             'password' => static::$password ??= Hash::make('password'),
-            'role' => fake()->randomElement([User::ROLE_MANAGER,User::ROLE_AGENT]),
+            'role' => fake()->randomElement([User::ROLE_ADMIN,User::ROLE_INDUSTRY]),
             'is_active' => true,
         ];
     }

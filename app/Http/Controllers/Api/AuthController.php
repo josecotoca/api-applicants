@@ -1,25 +1,62 @@
 <?php
-
 namespace App\Http\Controllers\Api;
 
-use App\Contracts\UserRepositoryInterface;
-use App\Models\User;
+use Illuminate\Http\Request;
+use App\Traits\ApiAuthenticable;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\ApiResource;
 use App\Http\Requests\Api\ApiLoginRequest;
 use App\Http\Resources\Api\ApiErrorResource;
-use Illuminate\Support\Facades\Auth;
+use App\Services\LoginService;
 
 class AuthController extends Controller
 {
-    private $userRepository;
+    private $service;
 
-    public function __construct(UserRepositoryInterface $userRepository)
+    public function __construct(LoginService $login_service)
     {
-        $this->userRepository = $userRepository;
+        $this->service = $login_service;
     }
-
+    /**
+     * Iniciar token
+     * @OA\Post (
+     *     path="/api/auth/login",
+     *     tags={"auth"},
+     *     @OA\RequestBody(
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 @OA\Property(
+     *                      type="object",
+     *                      @OA\Property(
+     *                          property="username",
+     *                          type="string"
+     *                      ),
+     *                      @OA\Property(
+     *                          property="password",
+     *                          type="string"
+     *                      )
+     *                 ),
+     *                 example={
+     *                     "username":"industria",
+     *                     "password":"industria"
+     *                }
+     *             )
+     *         )
+     *      ),
+     *      @OA\Response(
+     *          response=200,
+     *          description="Autenticado",
+     *          @OA\JsonContent()
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="Unprocessable content",
+     *          @OA\JsonContent()
+     *      )
+     * )
+     */
     public function login(ApiLoginRequest $request)
     {
         $credentials = [
@@ -32,44 +69,93 @@ class AuthController extends Controller
             return (new ApiErrorResource(['The username or password is incorrect'], 401));
         }
 
-        if(!$this->validateUserActive($request->username))
+        if (!$this->service->isUserActive($request->username))
             return (new ApiErrorResource(['The username or password is incorrect'], 401));
 
-        $this->updateLastLogin();
+        $auth_user = auth()->user();
 
-        $data = $this->getToken($token);
+        $this->service->updateLastLogin($auth_user->id);
+
+        $data = $this->service->getToken($token);
+        $data['user'] = $this->service->getUserById($auth_user->id);
 
         return (new ApiResource($data));
     }
 
-    protected function validateUserActive($username)
+    /**
+     * Finalizar token
+     * @OA\Post (
+     *     path="/api/auth/logout",
+     *     tags={"auth"},
+     *     security={{"bearer_token":{}}},
+     *      @OA\Response(
+     *          response=200,
+     *          description="Cierre de session",
+     *          @OA\JsonContent()
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="Unprocessable content",
+     *          @OA\JsonContent()
+     *      )
+     * )
+     */
+    public function logout(Request $request)
     {
-        $user = $this->userRepository->getUserByUsername($username);
+        auth()->logout();
+        $data = ["Cierre de sesión exitoso"];
 
-        if(is_null($user) || $user->is_active == false)
-            return false;
-
-        return true;
+        return (new ApiResource($data));
     }
 
-    protected function updateLastLogin()
+    /**
+     * Refrescar nuevo token
+     * @OA\Post (
+     *     path="/api/auth/refresh",
+     *     tags={"auth"},
+     *     security={{"bearer_token":{}}},
+     *      @OA\Response(
+     *          response=200,
+     *          description="Autenticado",
+     *          @OA\JsonContent()
+     *      ),
+     *      @OA\Response(
+     *          response=422,
+     *          description="Unprocessable content",
+     *          @OA\JsonContent()
+     *      )
+     * )
+     */
+    public function refresh(Request $request)
     {
-        $auth_user = Auth::user();
-        $user = User::find($auth_user->id);
-        $user->last_login = date('Y-m-d h:i:s');
-        $user->update();
+        $data = $this->service->refreshToken();
+
+        return (new ApiResource($data));
     }
 
-    protected function getToken($token)
+    /**
+     * mi perfil
+     * @OA\Get(
+     * path="/api/auth/me",
+     * summary="Mi perfil",
+     * tags={"auth"},
+     * security={{"bearer_token":{}}},
+     * @OA\RequestBody(
+     * @OA\MediaType(
+     * mediaType="application/json"
+     * )),
+     * @OA\Response(
+     * response=200,
+     * description="Perfil",
+     * @OA\JsonContent()
+     * ),
+     * )
+     */
+    public function me()
     {
-        return [
-            "token" => $token,
-            "minutes_to_expire" => auth()->factory()->getTTL()
-        ];
-    }
+        $auth_user = auth()->user();
+        $data = $this->service->getUserById($auth_user->id);
 
-    public function refresh()
-    {
-        return $this->getToken(auth()->refresh());
+        return (new ApiResource($data));
     }
 }

@@ -38,8 +38,7 @@ class Handler extends ExceptionHandler
      */
     protected function invalidJson($request, ValidationException $exception)
     {
-        //TODO: Fix or Add $exception->errors()
-        $response = $exception->getMessage();
-        return (new ApiErrorResource($response, $exception->status));
+        return (new ApiErrorResource($exception->errors(), $exception->status));
     }
+
 }

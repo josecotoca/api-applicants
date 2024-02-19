@@ -23,7 +23,7 @@ class ApiLoginRequest extends FormRequest
     {
         return [
             'username' => 'required|string|min:2|max:100',
-            'password' => 'required|string|min:2'
+            'password' => 'required|string|min:2|max:100'
         ];
     }
 
