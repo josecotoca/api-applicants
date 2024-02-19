@@ -170,9 +170,9 @@ return [
         App\Providers\RouteServiceProvider::class,
         Spatie\Permission\PermissionServiceProvider::class,
         Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
-        Maatwebsite\Excel\ExcelServiceProvider::class,
+        App\Providers\RepositoryServiceProvider::class,
     ])->toArray(),
-        //App\Providers\RepositoryServiceProvider::class,
+
     /*
     |--------------------------------------------------------------------------
     | Class Aliases
@@ -189,7 +189,6 @@ return [
  //       'Jwt' => Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
         'JWTFactory' => Tymon\JWTAuth\Facades\JWTFactory::class,
         'JWTAuth' => Tymon\JWTAuth\Facades\JWTAuth::class,
-        'Excel' => Maatwebsite\Excel\Facades\Excel::class,
     ])->toArray(),
 
 ];

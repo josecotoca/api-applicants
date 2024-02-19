@@ -3,8 +3,9 @@
 namespace App\Repositories;
 
 use App\Models\User;
+use App\Contracts\UserRepositoryInterface;
 
-class UserRepository extends BaseRepository
+class UserRepository extends BaseRepository implements UserRepositoryInterface
 {
     public function __construct(User $user)
     {

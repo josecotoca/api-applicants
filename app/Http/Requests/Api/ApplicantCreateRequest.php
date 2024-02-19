@@ -14,10 +14,9 @@ class ApplicantCreateRequest extends FormRequest
     public function authorize(): bool
     {
 
-        // $user = Auth::user();
-        // $check = $user->hasPermissionTo(User::PERMISSION_CREATE_AGENT, 'api');
-        // return $check;
-        return true;
+        $user = Auth::user();
+        $check = $user->hasPermissionTo(User::PERMISSION_CREATE_AGENT, 'api');
+        return $check;
     }
 
     /**

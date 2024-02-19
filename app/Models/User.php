@@ -15,14 +15,12 @@ class User extends Authenticatable implements JWTSubject
 {
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
 
-    const ROLE_ADMIN = 'administrador';
-    const ROLE_INDUSTRY = 'industria';
-    const ROLE_SUPERVISOR = 'supervisor';
-    const ROLE_CONTROL = 'control';
-    const ROLE_GREMIO = 'gremio';
+    const ROLE_MANAGER = 'manager';
+    const ROLE_AGENT = 'agent';
 
-    const PERMISSION_GET_INDUSTRIES = 'listar_industrias';
-    const PERMISSION_UPLOAD_RESUME_PERIODO = 'subir_responsable';
+    const PERMISSION_CREATE_AGENT = 'crear_candidato';
+    const PERMISSION_GET_AGENTS = 'obtener_candidatos';
+    const PERMISSION_GET_AGENTS_BY_OWNER = 'obtener_candidatos_por_responsable';
 
     protected $table = 'users';
     protected $guarded = ['id'];
@@ -43,7 +41,7 @@ class User extends Authenticatable implements JWTSubject
     protected $hidden = [
         'password',
         'created_at',
-        'updated_at',
+        'updated_at'
     ];
 
     /**
@@ -69,10 +67,5 @@ class User extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims()
     {
       return [];
-    }
-
-    public function industry_user()
-    {
-        return $this->hasMany('App\Models\IndustryUser');
     }
 }
