@@ -1,4 +1,5 @@
 # _api-applicants_
+Proyecto desarrollado en laravel 10
 
 ## _api for applicants of jobs_
 
