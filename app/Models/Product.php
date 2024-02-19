@@ -16,10 +16,9 @@ class Product extends Model
 
     protected $fillable = [
         'name',
-        'description',
+        'short_name',
         'unit',
         'factor',
-        'status'
     ];
 
     protected $hidden = [
@@ -30,7 +29,7 @@ class Product extends Model
     {
         if($value && $value!=''){
             return $query->where('name','LIKE',"%".$value."%")
-            ->orWhere('description','LIKE',"%$value%")
+            ->orWhere('short_name','LIKE',"%$value%")
             ->orWhere('unit','LIKE',"%$value%");
         }
     }

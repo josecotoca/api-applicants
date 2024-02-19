@@ -22,7 +22,7 @@ return new class extends Migration
             $table->date('date_end');
             $table->date('date_limit');
             $table->string('status_description',50)->nullable();
-            $table->enum('status',[Period::STATUS_ACTIVE,Period::STATUS_FINISHED])->default(Period::STATUS_ACTIVE);
+            $table->enum('status',[Period::STATUS_ACTIVE,Period::STATUS_FINISHED,Period::STATUS_PENDING])->default(Period::STATUS_ACTIVE);
             $table->timestamps();
         });
     }

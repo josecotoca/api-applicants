@@ -12,22 +12,51 @@ class Resume extends Model
     protected $guarded = ['id'];
 
     protected $fillable = [
-        'stock',
-        'production',
-        'acopio',
-        'priceclosing',
-        'hss',
-        'his',
-        'acs',
-        'ars',
-        'cs',
-        'exp',
-        'industry_id',
-        'period_id',
         'year',
+        'month',
+        'biweekly',
+        'period_id',
+        'status',
+        'acopio',
+        'acopio_tm',
+        'priceclosing',
+        'priceclosing_tm',
+        'priceclosing_usd',
+        'hss',
+        'hss_tm',
+        'hss_usd',
+        'cs',
+        'cs_tm',
+        'cs_usd',
+        'acs',
+        'acs_tm',
+        'acs_usd',
+        'ars',
+        'ars_tm',
+        'ars_usd',
+        'his',
+        'his_tm',
+        'his_usd',
+        'exp',
+        'exp_tm',
+        'exp_usd',
+        'stock',
+        'stock_hss',
+        'stock_cs',
+        'stock_acs',
+        'stock_ars',
+        'stock_his',
+        'stock_exp',
+        'production',
+        'production_hss',
+        'production_cs',
+        'production_acs',
+        'production_ars',
+        'production_his',
+        'production_exp',
+        'industry_id',
         'configuration_id',
         'observation',
-        'status'
     ];
 
     protected $hidden = [
@@ -38,6 +67,20 @@ class Resume extends Model
     {
         if ($value && $value > 0) {
             return $query->where('year', $value);
+        }
+    }
+
+    public function scopeMonth($query, $value)
+    {
+        if ($value && $value > 0) {
+            return $query->where('month', $value);
+        }
+    }
+
+    public function scopeBiweekly($query, $value)
+    {
+        if ($value && $value > 0) {
+            return $query->where('biweekly', $value);
         }
     }
 

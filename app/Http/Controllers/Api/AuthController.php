@@ -1,31 +1,25 @@
 <?php
-
 namespace App\Http\Controllers\Api;
 
-use App\Models\User;
-use App\Models\Period;
-use App\Models\Resume;
-use App\Models\IndustryUser;
 use Illuminate\Http\Request;
+use App\Traits\ApiAuthenticable;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
 use App\Http\Resources\Api\ApiResource;
-use App\Contracts\UserRepositoryInterface;
 use App\Http\Requests\Api\ApiLoginRequest;
 use App\Http\Resources\Api\ApiErrorResource;
+use App\Services\LoginService;
 
 class AuthController extends Controller
 {
-    private $userRepository;
+    private $service;
 
-    public function __construct(UserRepositoryInterface $userRepository)
+    public function __construct(LoginService $login_service)
     {
-        $this->userRepository = $userRepository;
+        $this->service = $login_service;
     }
-
     /**
-     * Login
+     * Iniciar token
      * @OA\Post (
      *     path="/api/auth/login",
      *     tags={"auth"},
@@ -54,10 +48,12 @@ class AuthController extends Controller
      *      @OA\Response(
      *          response=200,
      *          description="Autenticado",
+     *          @OA\JsonContent()
      *      ),
      *      @OA\Response(
      *          response=422,
-     *          description="UNPROCESSABLE CONTENT"
+     *          description="Unprocessable content",
+     *          @OA\JsonContent()
      *      )
      * )
      */
@@ -73,19 +69,21 @@ class AuthController extends Controller
             return (new ApiErrorResource(['The username or password is incorrect'], 401));
         }
 
-        if (!$this->validateUserActive($request->username))
+        if (!$this->service->isUserActive($request->username))
             return (new ApiErrorResource(['The username or password is incorrect'], 401));
 
-        $this->updateLastLogin();
+        $auth_user = auth()->user();
 
-        $data = $this->getToken($token);
-        $data['user'] = $this->getUser();
+        $this->service->updateLastLogin($auth_user->id);
+
+        $data = $this->service->getToken($token);
+        $data['user'] = $this->service->getUserById($auth_user->id);
 
         return (new ApiResource($data));
     }
 
     /**
-     * Login
+     * Finalizar token
      * @OA\Post (
      *     path="/api/auth/logout",
      *     tags={"auth"},
@@ -93,23 +91,25 @@ class AuthController extends Controller
      *      @OA\Response(
      *          response=200,
      *          description="Cierre de session",
+     *          @OA\JsonContent()
      *      ),
      *      @OA\Response(
      *          response=422,
-     *          description="UNPROCESSABLE CONTENT"
+     *          description="Unprocessable content",
+     *          @OA\JsonContent()
      *      )
      * )
      */
     public function logout(Request $request)
     {
         auth()->logout();
-        $data = "Cierre de sesión exitoso";
+        $data = ["Cierre de sesión exitoso"];
 
         return (new ApiResource($data));
     }
 
     /**
-     * Login
+     * Refrescar nuevo token
      * @OA\Post (
      *     path="/api/auth/refresh",
      *     tags={"auth"},
@@ -117,25 +117,27 @@ class AuthController extends Controller
      *      @OA\Response(
      *          response=200,
      *          description="Autenticado",
+     *          @OA\JsonContent()
      *      ),
      *      @OA\Response(
      *          response=422,
-     *          description="UNPROCESSABLE CONTENT"
+     *          description="Unprocessable content",
+     *          @OA\JsonContent()
      *      )
      * )
      */
     public function refresh(Request $request)
     {
-        $token = $this->refreshToken();
-        $data = $this->getToken($token);
+        $data = $this->service->refreshToken();
 
         return (new ApiResource($data));
     }
 
     /**
+     * mi perfil
      * @OA\Get(
-     * path="/api/auth/reconection",
-     * summary="Reconection",
+     * path="/api/auth/me",
+     * summary="Mi perfil",
      * tags={"auth"},
      * security={{"bearer_token":{}}},
      * @OA\RequestBody(
@@ -144,106 +146,16 @@ class AuthController extends Controller
      * )),
      * @OA\Response(
      * response=200,
-     * description="Reconection"
-     * ),
-     * )
-     */
-    public function reconection()
-    {
-        $data['industry'] = $this->getIndustry();
-        $data['period'] = $this->getPeriodActive();
-        $data['resume'] = $this->getResumePeriod($data['industry']->id);
-
-        return (new ApiResource($data));
-    }
-
-    public function getIndustry()
-    {
-        $auth_user = auth()->user();
-        $industry = IndustryUser::where('user_id', $auth_user->id)->with('industry')->first();
-        return !is_null($industry) && !is_null($industry->industry) ? $industry->industry : null;
-    }
-
-    public function getPeriodActive()
-    {
-        $period = Period::where('status', Period::STATUS_ACTIVE)->first();
-        return $period;
-    }
-
-    public function getResumePeriod($industry_id)
-    {
-        $year_current = date('Y');
-        $resume = Resume::query()
-            ->where('year', $year_current)->where('industry_id', $industry_id)
-            ->select(['id', 'stock', 'production', 'acopio', 'priceclosing', 'hss', 'his', 'acs', 'ars', 'cs', 'exp', 'period_id'])
-            ->with(['period:id,name,year,month,biweekly,date_start,date_end,date_limit,status'])
-            ->get();
-        return $resume;
-    }
-
-    /**
-     * @OA\Get(
-     * path="/api/me",
-     * summary="Mi perfil",
-     * tags={"users"},
-     * security={{"bearer_token":{}}},
-     * @OA\RequestBody(
-     * @OA\MediaType(
-     * mediaType="application/json"
-     * )),
-     * @OA\Response(
-     * response=200,
-     * description="Perfil"
+     * description="Perfil",
+     * @OA\JsonContent()
      * ),
      * )
      */
     public function me()
     {
-        $data = $this->getUser();
+        $auth_user = auth()->user();
+        $data = $this->service->getUserById($auth_user->id);
 
         return (new ApiResource($data));
-    }
-
-    protected function validateUserActive($username)
-    {
-        $user = $this->userRepository->getUserByUsername($username);
-
-        if (is_null($user) || $user->is_active == false)
-            return false;
-
-        return true;
-    }
-
-    protected function updateLastLogin()
-    {
-        $auth_user = auth()->user();
-        $user = User::find($auth_user->id);
-        $user->last_login = date('Y-m-d h:i:s');
-        $user->update();
-    }
-
-
-    protected function getToken($token)
-    {
-        return [
-            "token" => $token,
-            "token_type" => 'Bearer',
-            "minutes_to_expire" => auth()->factory()->getTTL(),
-        ];
-    }
-
-    protected function getUser()
-    {
-        $auth_user = auth()->user();
-        $user = User::where('id', $auth_user->id)->first();
-        return [
-            'username' => $user->username,
-            'role' => $user->role,
-        ];
-    }
-
-    public function refreshToken()
-    {
-        return $this->getToken(auth()->refresh());
     }
 }

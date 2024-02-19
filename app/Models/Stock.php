@@ -14,9 +14,10 @@ class Stock extends Model
     protected $guarded = ['id'];
 
     protected $fillable = [
-        'TM',
+        'tm',
         'form_id',
-        'product_id'
+        'product_id',
+        'product_name'
     ];
 
     public function form()

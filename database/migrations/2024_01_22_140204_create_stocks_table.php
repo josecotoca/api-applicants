@@ -13,9 +13,10 @@ return new class extends Migration
     {
         Schema::create('stocks', function (Blueprint $table) {
             $table->id();
-            $table->double('TM')->default(0);
+            $table->double('tm')->default(0);
             $table->bigInteger('form_id');
-            $table->bigInteger('product_id');
+            $table->bigInteger('product_id')->nullable();
+            $table->string('product_name',150)->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

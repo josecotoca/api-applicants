@@ -28,6 +28,10 @@ class Option extends Model
         'short_name',
     ];
 
+    protected $hidden = [
+        'updated_at','created_at'
+    ];
+
     public function isStock()
     {
         return $this->attributes['short_name'] == self::OPTION_STOCK ? true : false;

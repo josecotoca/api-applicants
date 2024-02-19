@@ -10,7 +10,7 @@
                 "tags": [
                     "auth"
                 ],
-                "summary": "Login",
+                "summary": "Iniciar token",
                 "operationId": "dd51a484b7fa0f97c7680fdbde14cf5f",
                 "requestBody": {
                     "content": {
@@ -40,10 +40,20 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Autenticado"
+                        "description": "Autenticado",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     },
                     "422": {
-                        "description": "UNPROCESSABLE CONTENT"
+                        "description": "Unprocessable content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     }
                 }
             }
@@ -53,14 +63,24 @@
                 "tags": [
                     "auth"
                 ],
-                "summary": "Login",
+                "summary": "Finalizar token",
                 "operationId": "df9bdc6c7a6d9f20b983526b2ec0f698",
                 "responses": {
                     "200": {
-                        "description": "Cierre de session"
+                        "description": "Cierre de session",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     },
                     "422": {
-                        "description": "UNPROCESSABLE CONTENT"
+                        "description": "Unprocessable content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -75,14 +95,198 @@
                 "tags": [
                     "auth"
                 ],
-                "summary": "Login",
+                "summary": "Refrescar nuevo token",
                 "operationId": "30c20c52f5f72828d8c531fd7c9ea3e7",
                 "responses": {
                     "200": {
-                        "description": "Autenticado"
+                        "description": "Autenticado",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     },
                     "422": {
-                        "description": "UNPROCESSABLE CONTENT"
+                        "description": "Unprocessable content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/me": {
+            "get": {
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Mi perfil",
+                "description": "mi perfil",
+                "operationId": "b5de204f5e452ef51327c691aa99e77c",
+                "requestBody": {
+                    "content": {
+                        "application/json": {}
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Perfil",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/industry/settings": {
+            "get": {
+                "tags": [
+                    "industry"
+                ],
+                "summary": "configuracion para formularios",
+                "description": "Ver configuracion de formularios",
+                "operationId": "eb020bacbc4601289ef6fd0c72f64ce7",
+                "requestBody": {
+                    "content": {
+                        "application/json": {}
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "confgiruacion",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/industry/import-xls": {
+            "post": {
+                "tags": [
+                    "industry"
+                ],
+                "summary": "Importar Excel",
+                "operationId": "ee675bfd730ab8f3fc3205dbd2fd6a2f",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "allOf": [
+                                    {
+                                        "properties": {
+                                            "file": {
+                                                "description": "Archivo Excel",
+                                                "type": "string",
+                                                "format": "binary"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Import successfull",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearer_token": []
+                    }
+                ]
+            }
+        },
+        "/api/industry/save-acopio": {
+            "post": {
+                "tags": [
+                    "industry"
+                ],
+                "summary": "Guardar formulario Acopio",
+                "operationId": "128494644d6e853d84d51303ae1a943d",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "": {
+                                        "properties": {
+                                            "period_id": {
+                                                "type": "integer"
+                                            },
+                                            "name_file": {
+                                                "type": "string"
+                                            },
+                                            "worksheet": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object",
+                                "example": {
+                                    "period_id": "1",
+                                    "name_file": "file.xls",
+                                    "worksheet": "GRANO ACOPIADO"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "formulario guardado",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable content",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -98,7 +302,8 @@
                     "auth"
                 ],
                 "summary": "Reconection",
-                "operationId": "bda651307266595f335692043f7f8b57",
+                "description": "Recuperar configuraciones",
+                "operationId": "91ec07453a2c24e0d6766518cea9ec69",
                 "requestBody": {
                     "content": {
                         "application/json": {}
@@ -106,55 +311,12 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Reconection"
-                    }
-                },
-                "security": [
-                    {
-                        "bearer_token": []
-                    }
-                ]
-            }
-        },
-        "/api/me": {
-            "get": {
-                "tags": [
-                    "users"
-                ],
-                "summary": "Mi perfil",
-                "operationId": "8367feff40ba10e43187792cad3132c1",
-                "requestBody": {
-                    "content": {
-                        "application/json": {}
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Perfil"
-                    }
-                },
-                "security": [
-                    {
-                        "bearer_token": []
-                    }
-                ]
-            }
-        },
-        "/api/industry/me": {
-            "get": {
-                "tags": [
-                    "industry"
-                ],
-                "summary": "Mi perfil",
-                "operationId": "e47d27dbc02c29a2b3fd0ddc1d794e0b",
-                "requestBody": {
-                    "content": {
-                        "application/json": {}
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Perfil"
+                        "description": "Reconection",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     }
                 },
                 "security": [
